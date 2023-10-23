@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
 
 usage () {
-    echo "Usage: piget.sh [from <Start search offset>] <Number string to search for> ...";
+    echo "Usage: piget.sh [from <Start search offset>] [beep] <Number string to search for> ...";
     echo "<Start search offset> : Default is 0";
+    echo beep : Beep when found;
     exit 1;
 }
 
@@ -10,6 +11,7 @@ if [ $# -eq 0 ]; then
     usage;
 fi
 
+beepon=0;
 strhr=0;
 lookfor=();
 while [ "$1" != "" ]; do
@@ -20,6 +22,8 @@ while [ "$1" != "" ]; do
         fi
         shift;
         strhr=$1;
+    elif [ "$1" == "beep" ]; then
+        beepon=1;
     else
         lookfor+=("$1");
     fi
@@ -63,7 +67,11 @@ do {
     #then echo -en [$lookfor]$strhr :"\x0d";
     #else echo [$lookfor]$strhr :$rtn | grep --color $lookfor;
     then echo -en [${lookfor[@]}]$strhr :"\x0d";
-    else echo [${lookfor[@]}]$strhr :$rtn | grep --color $lookgors;
+    else {
+        echo [${lookfor[@]}]$strhr :$rtn | grep --color $lookgors;
+        if [ $beepon -eq 1 ]; then echo -en "\x07";
+        fi
+    }
     fi;
     
     strhr=$((strhr + rdoffset));
