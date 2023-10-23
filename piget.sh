@@ -1,14 +1,34 @@
 #!/usr/bin/env bash
 
-if [ $# -eq 0 ]; then
-    echo "Usage: piget.sh <string to search for>";
+usage () {
+    echo "Usage: piget.sh [from <Start search offset>] <Number string to search for>";
+    echo "<Start search offset> : Default is 0";
     exit 1;
+}
+
+if [ $# -eq 0 ]; then
+    usage;
 fi
-lookfor=$1;
+
+strhr=0;
+lookfor="";
+while [ "$1" != "" ]; do
+    #echo arg: $1;
+    if [ "$1" == "from" ]; then
+        if [ $# -lt 2 ]; then
+            usage;
+        fi
+        shift;
+        strhr=$1;
+    else
+        lookfor=$1;
+    fi
+    shift;
+done
 
 blksize=1000;
 if [ ${#lookfor} -gt $blksize ]; then
-    echo "String to search for is too long. Max length is $blksize";
+    echo "Number string to search for is too long. Max length is $blksize";
     exit 1;
 fi
 
@@ -16,7 +36,9 @@ dlt=${#lookfor}
 dlt=$((dlt - 1))
 rdoffset=$((blksize - dlt))
 
-strhr=0;
+#echo "Searching for $lookfor from $strhr";
+#exit 1;
+
 while true;  
 do { 
     rtn=`curl https://api.pi.delivery/v1/pi?start=$strhr\&numberOfDigits=1000\&radix=10 2> /dev/null | grep $lookfor 2> /dev/null`; 
